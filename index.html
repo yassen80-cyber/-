@@ -388,7 +388,7 @@
     // إرسال تلقائي عبر واتساب: يبعت للرقم الثابت اللي كان بيبعتله، وكمان لرقم العميل اللي اتسجل
     function sendWhatsApp(record) {
       const msg = `🧾 *بيانات عميل جديد - سنتر يس التجاري*\n\n📅 التاريخ: ${record.date}\n👤 الاسم: ${record.customer}\n📞 التليفون: ${record.phone}\n💻 الجهاز: ${record.deviceType}\n⚙️ العطل: ${record.problem}\n📝 ملاحظات: ${record.notes || 'لا يوجد'}\n🕒 الضمان: ${record.warranty} شهر\n📆 نهاية الضمان: ${record.warrantyEnd}`;
-      const shopPhone = '201221015966';
+      const shopPhone = '201279383905';
       const customerPhone = formatPhoneForWhatsApp(record.phone);
 
       window.open(`https://wa.me/${shopPhone}?text=${encodeURIComponent(msg)}`, '_blank');
