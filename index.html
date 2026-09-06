@@ -107,6 +107,10 @@
       padding: 10px; background: linear-gradient(135deg, #42a5f5, #1e88e5); color: white;
       border-radius: 8px; font-size: 14px; font-weight: 600;
     }
+    #sendShopBtn {
+      display: none; width: auto; margin: 8px auto 0; padding: 8px 16px;
+      font-size: 13px; background: linear-gradient(135deg, #26c6da, #0097a7);
+    }
     .table-wrapper {
       width: 100%;
       overflow-x: auto;
@@ -139,7 +143,11 @@
   <h2>سـنتر يس التجاري</h2>
   <input type="text" id="searchInput" placeholder="ابحث باسم العميل أو رقم الهاتف...">
   <div id="resultCount"></div>
-  <div id="successMessage">✅ تم إرسال البيانات على واتساب</div>
+  <div id="successMessage">
+    ✅ هيتفتح شات العميل دلوقتي، وبعد ما ترجع هيتفتح شات المحل تلقائي
+    <br>
+    <button type="button" id="sendShopBtn">📨 لو ملتحقش، اضغط هنا لإرسال شات المحل</button>
+  </div>
   <form id="repairForm">
     <label>تاريخ الاستلام:</label>
     <input type="date" id="date" required>
@@ -194,6 +202,7 @@
     const successMessage = document.getElementById('successMessage');
     const submitBtn = document.getElementById('submitBtn');
     const cancelEditBtn = document.getElementById('cancelEditBtn');
+    const sendShopBtn = document.getElementById('sendShopBtn');
 
     let editingIndex = null;
 
@@ -245,7 +254,6 @@
 
     function showSuccess() {
       successMessage.style.display = 'block';
-      setTimeout(() => successMessage.style.display = 'none', 3000);
     }
 
     function getDeviceColor(type) {
@@ -385,15 +393,36 @@
       return p;
     }
 
-    // إرسال تلقائي عبر واتساب: يبعت للرقم الثابت اللي كان بيبعتله، وكمان لرقم العميل اللي اتسجل
+    // فتح شات واتساب مباشر جوه التطبيق (من غير صفحة متصفح وسيطة)
+    function openWhatsAppChat(phone, text) {
+      window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(text)}`;
+    }
+
+    let pendingShopSend = null; // { phone, text }
+
+    // بمجرد ما ترجع من تطبيق واتساب (بعد ما تبعت في الشات الأول)، يفتح الشات التاني تلقائي
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden && pendingShopSend) {
+        const data = pendingShopSend;
+        pendingShopSend = null;
+        setTimeout(() => openWhatsAppChat(data.phone, data.text), 700);
+      }
+    });
+
+    // إرسال تلقائي: يفتح شات العميل الأول، وبمجرد الرجوع من واتساب يفتح شات المحل تاني
     function sendWhatsApp(record) {
       const msg = `🧾 *بيانات عميل جديد - سنتر يس التجاري*\n\n📅 التاريخ: ${record.date}\n👤 الاسم: ${record.customer}\n📞 التليفون: ${record.phone}\n💻 الجهاز: ${record.deviceType}\n⚙️ العطل: ${record.problem}\n📝 ملاحظات: ${record.notes || 'لا يوجد'}\n🕒 الضمان: ${record.warranty} شهر\n📆 نهاية الضمان: ${record.warrantyEnd}`;
-      const shopPhone = '201279383905';
+      const shopPhone = '201221015966';
       const customerPhone = formatPhoneForWhatsApp(record.phone);
 
-      window.open(`https://wa.me/${shopPhone}?text=${encodeURIComponent(msg)}`, '_blank');
-      if (customerPhone && customerPhone !== shopPhone) {
-        window.open(`https://wa.me/${customerPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+      sendShopBtn.onclick = function() { openWhatsAppChat(shopPhone, msg); };
+
+      if (customerPhone) {
+        pendingShopSend = { phone: shopPhone, text: msg };
+        sendShopBtn.style.display = 'inline-block';
+        openWhatsAppChat(customerPhone, msg);
+      } else {
+        sendShopBtn.style.display = 'inline-block';
       }
     }
 
