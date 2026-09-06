@@ -35,51 +35,57 @@
     .bg-blobs span {
       position: absolute;
       border-radius: 50%;
-      filter: blur(40px);
-      opacity: 0.35;
+      filter: blur(36px);
+      opacity: 0.45;
       background: radial-gradient(circle at 30% 30%, #64b5f6, #1565c0);
     }
     .bg-blobs span:nth-child(1) {
-      width: 220px; height: 220px; top: -60px; right: -40px;
-      animation: floatA 16s ease-in-out infinite;
+      width: 240px; height: 240px; top: -60px; right: -40px;
+      animation: floatA 9s ease-in-out infinite;
     }
     .bg-blobs span:nth-child(2) {
-      width: 160px; height: 160px; bottom: 10%; left: -50px;
+      width: 180px; height: 180px; bottom: 10%; left: -50px;
       background: radial-gradient(circle at 30% 30%, #90caf9, #0d47a1);
-      animation: floatB 20s ease-in-out infinite;
+      animation: floatB 11s ease-in-out infinite;
     }
     .bg-blobs span:nth-child(3) {
-      width: 130px; height: 130px; bottom: -40px; right: 15%;
-      animation: floatC 14s ease-in-out infinite;
+      width: 150px; height: 150px; bottom: -40px; right: 15%;
+      animation: floatC 8s ease-in-out infinite;
     }
     @keyframes floatA {
-      0%, 100% { transform: translate(0,0); }
-      50% { transform: translate(-30px, 40px); }
+      0%, 100% { transform: translate(0,0) rotate(0deg); }
+      50% { transform: translate(-70px, 90px) rotate(40deg); }
     }
     @keyframes floatB {
-      0%, 100% { transform: translate(0,0); }
-      50% { transform: translate(40px, -30px); }
+      0%, 100% { transform: translate(0,0) rotate(0deg); }
+      50% { transform: translate(90px, -70px) rotate(-35deg); }
     }
     @keyframes floatC {
       0%, 100% { transform: translate(0,0) scale(1); }
-      50% { transform: translate(-20px, -20px) scale(1.15); }
+      50% { transform: translate(-50px, -60px) scale(1.35); }
     }
 
     h2 {
       text-align: center;
-      background: linear-gradient(90deg, #0d47a1, #1e88e5, #0d47a1);
+      background: linear-gradient(90deg, #0d47a1, #1e88e5, #42a5f5, #0d47a1);
       background-size: 200% auto;
-      animation: titleShine 6s linear infinite;
+      animation: titleShine 3.5s linear infinite, titlePulse 2.4s ease-in-out infinite;
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
       font-size: 26px;
       margin-bottom: 15px;
       font-weight: 800;
+      display: inline-block;
+      width: 100%;
     }
     @keyframes titleShine {
       0% { background-position: 0% center; }
       100% { background-position: 200% center; }
+    }
+    @keyframes titlePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.035); }
     }
     form {
       background: #ffffff;
@@ -132,8 +138,8 @@
       transition: filter 0.2s, transform 0.15s, box-shadow 0.2s;
       box-shadow: 0 3px 10px rgba(13,71,161,0.25);
     }
-    button:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(13,71,161,0.32); }
-    button:active { transform: scale(0.97); }
+    button:hover { filter: brightness(1.12); transform: translateY(-3px) scale(1.015); box-shadow: 0 10px 22px rgba(13,71,161,0.38); }
+    button:active { transform: scale(0.94) translateY(0); }
 
     #cancelEditBtn {
       display: none;
@@ -170,11 +176,12 @@
       display: none; text-align: center; margin: 10px 0;
       padding: 12px; background: linear-gradient(135deg, #1e88e5, #0d47a1); color: white;
       border-radius: 8px; font-size: 14px; font-weight: 600;
-      animation: popIn 0.4s ease;
+      animation: popIn 0.55s cubic-bezier(.36,1.6,.42,1);
     }
     @keyframes popIn {
-      0% { opacity: 0; transform: scale(0.9); }
-      100% { opacity: 1; transform: scale(1); }
+      0% { opacity: 0; transform: scale(0.6) rotate(-4deg); }
+      60% { opacity: 1; transform: scale(1.08) rotate(2deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0deg); }
     }
     .table-wrapper {
       width: 100%;
@@ -194,10 +201,23 @@
     tr:hover { background: #eaf3fd; }
     tr:nth-child(even) { background: #f7fbff; }
     tr:nth-child(even):hover { background: #eaf3fd; }
-    tr.row-enter { animation: rowIn 0.4s ease both; }
+    tr.row-enter { animation: rowIn 0.5s cubic-bezier(.34,1.56,.64,1) both; }
     @keyframes rowIn {
-      from { opacity: 0; transform: translateX(-14px); }
-      to { opacity: 1; transform: translateX(0); }
+      from { opacity: 0; transform: translateX(-28px) scale(0.96); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
+    }
+    .warranty-expired {
+      color: #c62828;
+      font-weight: 800;
+      animation: warnPulse 1.6s ease-in-out infinite;
+    }
+    .warranty-active {
+      color: #2e7d32;
+      font-weight: 700;
+    }
+    @keyframes warnPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.55; }
     }
 
     @media (max-width: 600px) {
@@ -333,9 +353,19 @@
       }
     }
 
+    function getWarrantyDisplay(warrantyEnd) {
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const end = new Date(warrantyEnd);
+      if (isNaN(end.getTime())) return { text: warrantyEnd, cls: '' };
+      if (end < today) return { text: 'منتهي', cls: 'warranty-expired' };
+      return { text: warrantyEnd, cls: 'warranty-active' };
+    }
+
     function addRow(record, index = null) {
       const row = document.createElement('tr');
       row.classList.add('row-enter');
+      const w = getWarrantyDisplay(record.warrantyEnd);
       row.innerHTML = `
         <td>${record.date}</td>
         <td>${record.customer}</td>
@@ -344,7 +374,7 @@
         <td style="color:${getDeviceColor(record.deviceType)};">${record.problem}</td>
         <td>${record.notes}</td>
         <td>${record.warranty} شهر</td>
-        <td>${record.warrantyEnd}</td>
+        <td class="${w.cls}">${w.text}</td>
         <td>
           <button class="action-btn edit-btn" onclick="editRow(this)">تعديل</button>
           <button class="action-btn delete-btn" onclick="deleteRow(this)">حذف</button>
@@ -488,16 +518,10 @@
     // زرار "واتساب" في كل صف: يفتح شات رقم العميل بتاع الصف ده نفسه
     function resendWhatsApp(btn) {
       const row = btn.parentElement.parentElement;
-      const record = {
-        date: row.cells[0].textContent,
-        customer: row.cells[1].textContent,
-        phone: row.cells[2].textContent,
-        deviceType: row.cells[3].textContent,
-        problem: row.cells[4].textContent,
-        notes: row.cells[5].textContent,
-        warranty: row.cells[6].textContent.replace(' شهر', ''),
-        warrantyEnd: row.cells[7].textContent
-      };
+      const index = Array.from(tableBody.children).indexOf(row);
+      let records = JSON.parse(localStorage.getItem('repairs')) || [];
+      const record = records[index];
+      if (!record) return;
       const msg = buildMessage(record);
       const customerPhone = formatPhoneForWhatsApp(record.phone);
       if (customerPhone) openWhatsAppChat(customerPhone, msg);
