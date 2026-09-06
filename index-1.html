@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>سـنتر يس التجاري</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Cairo', 'Tahoma', sans-serif;
+      background: linear-gradient(160deg, #eaf3ff 0%, #ffffff 45%, #eef6ff 100%);
+      color: #163a63;
+      padding: 10px;
+      direction: rtl;
+      -webkit-tap-highlight-color: transparent;
+    }
+    h2 {
+      text-align: center;
+      background: linear-gradient(90deg, #1565c0, #2196f3);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-size: 26px;
+      margin-bottom: 15px;
+      font-weight: 800;
+    }
+    form {
+      background: #ffffff;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(21, 101, 192, 0.12);
+      border: 1px solid #dbe9fb;
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin: 8px 0 3px;
+      font-size: 14px;
+      color: #1565c0;
+      font-weight: 600;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cfe0fa;
+      border-radius: 7px;
+      margin-bottom: 8px;
+      background: #f4f9ff;
+      color: #163a63;
+      font-size: 16px;
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+    input:focus, textarea:focus, select:focus {
+      background: #ffffff;
+      border-color: #2196f3;
+      box-shadow: 0 0 0 3px rgba(33,150,243,0.15);
+      outline: none;
+    }
+    button {
+      padding: 12px 0;
+      width: 100%;
+      background: linear-gradient(135deg, #2196f3, #1565c0);
+      color: white;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      margin-top: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      transition: filter 0.2s, transform 0.1s;
+    }
+    button:hover { filter: brightness(1.08); }
+    button:active { transform: scale(0.98); }
+
+    #cancelEditBtn {
+      display: none;
+      background: linear-gradient(135deg, #90a4ae, #607d8b);
+    }
+
+    .delete-btn { background: linear-gradient(135deg, #ef5350, #c62828); margin-top: 4px; }
+    .edit-btn { background: linear-gradient(135deg, #42a5f5, #1976d2); margin-top: 4px; }
+    .resend-btn { background: linear-gradient(135deg, #26c6da, #0097a7); margin-top: 4px; }
+
+    .action-btn {
+      width: auto;
+      display: inline-block;
+      padding: 7px 10px;
+      font-size: 12px;
+      margin: 2px;
+      border-radius: 6px;
+    }
+
+    #searchInput {
+      width: 100%; padding: 11px; margin: 10px 0 5px;
+      border-radius: 8px; border: 1px solid #cfe0fa; background: #f4f9ff; color: #163a63;
+      font-size: 16px;
+    }
+    #searchInput:focus {
+      background: #ffffff; border-color: #2196f3; outline: none;
+      box-shadow: 0 0 0 3px rgba(33,150,243,0.15);
+    }
+    #resultCount {
+      text-align: center; font-size: 13px; color: #5a7ca8; margin-bottom: 10px;
+    }
+    #successMessage {
+      display: none; text-align: center; margin: 10px 0;
+      padding: 10px; background: linear-gradient(135deg, #42a5f5, #1e88e5); color: white;
+      border-radius: 8px; font-size: 14px; font-weight: 600;
+    }
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(21, 101, 192, 0.10);
+    }
+    table {
+      width: 100%; min-width: 720px; margin-top: 10px; border-collapse: collapse;
+      background: #ffffff; border-radius: 10px; overflow: hidden; font-size: 13px;
+    }
+    th, td { padding: 10px 6px; text-align: center; border-bottom: 1px solid #e3edfa; }
+    th { background: linear-gradient(135deg, #2196f3, #1565c0); color: white; font-weight: 700; }
+    tr:hover { background: #f2f8ff; }
+    tr:nth-child(even) { background: #fafcff; }
+    tr:nth-child(even):hover { background: #f2f8ff; }
+
+    @media (max-width: 600px) {
+      body { padding: 6px; }
+      h2 { font-size: 22px; }
+      form { padding: 12px; border-radius: 10px; }
+      input, select, textarea, button { font-size: 16px; }
+      table { font-size: 12px; }
+      th, td { padding: 8px 4px; }
+      .action-btn { padding: 8px 8px; font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+  <h2>سـنتر يس التجاري</h2>
+  <input type="text" id="searchInput" placeholder="ابحث باسم العميل أو رقم الهاتف...">
+  <div id="resultCount"></div>
+  <div id="successMessage">✅ تم إرسال البيانات على واتساب</div>
+  <form id="repairForm">
+    <label>تاريخ الاستلام:</label>
+    <input type="date" id="date" required>
+    <label>اسم العميل:</label>
+    <input type="text" id="customer" required>
+    <label>رقم التليفون:</label>
+    <input type="text" id="phone" required>
+    <label>نوع الجهاز:</label>
+    <select id="deviceType" required>
+      <option value="شاشة">شاشة</option>
+      <option value="ريسيفر">ريسيفر</option>
+      <option value="دش">دش</option>
+    </select>
+    <label>العطل:</label>
+    <input type="text" id="problem" required>
+    <label>ملاحظات (اختياري):</label>
+    <textarea id="notes"></textarea>
+    <label>مدة الضمان:</label>
+    <select id="warranty" required>
+      <option value="3">3 شهور</option>
+      <option value="6">6 شهور</option>
+      <option value="12">سنة</option>
+    </select>
+    <button type="submit" id="submitBtn">إضافة للسجل</button>
+    <button type="button" id="cancelEditBtn">إلغاء التعديل</button>
+  </form>
+
+  <div class="table-wrapper">
+  <table id="repairTable">
+    <thead>
+      <tr>
+        <th>تاريخ الاستلام</th>
+        <th>اسم العميل</th>
+        <th>رقم التليفون</th>
+        <th>نوع الجهاز</th>
+        <th>العطل</th>
+        <th>ملاحظات</th>
+        <th>مدة الضمان</th>
+        <th>نهاية الضمان</th>
+        <th colspan="2">خيارات</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  </div>
+
+  <script>
+    const form = document.getElementById('repairForm');
+    const tableBody = document.querySelector('#repairTable tbody');
+    const searchInput = document.getElementById('searchInput');
+    const resultCount = document.getElementById('resultCount');
+    const successMessage = document.getElementById('successMessage');
+    const submitBtn = document.getElementById('submitBtn');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+
+    let editingIndex = null;
+
+    function calculateWarrantyEnd(startDate, months) {
+      const date = new Date(startDate);
+      date.setMonth(date.getMonth() + parseInt(months));
+      return date.toISOString().split('T')[0];
+    }
+
+    const defaultSubmit = function(e) {
+      e.preventDefault();
+      const record = {
+        date: document.getElementById('date').value,
+        customer: document.getElementById('customer').value,
+        phone: document.getElementById('phone').value,
+        deviceType: document.getElementById('deviceType').value,
+        problem: document.getElementById('problem').value,
+        notes: document.getElementById('notes').value,
+        warranty: document.getElementById('warranty').value,
+        warrantyEnd: calculateWarrantyEnd(document.getElementById('date').value, document.getElementById('warranty').value)
+      };
+
+      if (editingIndex !== null) {
+        updateData(record, editingIndex);
+        addRow(record, editingIndex);
+        exitEditMode();
+      } else {
+        addRow(record);
+        saveData(record);
+        sendWhatsApp(record);
+      }
+
+      showSuccess();
+      form.reset();
+    };
+
+    form.onsubmit = defaultSubmit;
+
+    cancelEditBtn.onclick = function() {
+      exitEditMode();
+      form.reset();
+    };
+
+    function exitEditMode() {
+      editingIndex = null;
+      submitBtn.textContent = 'إضافة للسجل';
+      cancelEditBtn.style.display = 'none';
+    }
+
+    function showSuccess() {
+      successMessage.style.display = 'block';
+      setTimeout(() => successMessage.style.display = 'none', 3000);
+    }
+
+    function getDeviceColor(type) {
+      switch(type) {
+        case 'شاشة': return '#00BCD4';
+        case 'ريسيفر': return '#FF9800';
+        case 'دش': return '#E91E63';
+        default: return '#163a63';
+      }
+    }
+
+    function addRow(record, index = null) {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${record.date}</td>
+        <td>${record.customer}</td>
+        <td>${record.phone}</td>
+        <td>${record.deviceType}</td>
+        <td style="color:${getDeviceColor(record.deviceType)};">${record.problem}</td>
+        <td>${record.notes}</td>
+        <td>${record.warranty} شهر</td>
+        <td>${record.warrantyEnd}</td>
+        <td>
+          <button class="action-btn edit-btn" onclick="editRow(this)">تعديل</button>
+          <button class="action-btn delete-btn" onclick="deleteRow(this)">حذف</button>
+          <button class="action-btn resend-btn" onclick="resendWhatsApp(this)">واتساب</button>
+        </td>
+      `;
+      if (index !== null) tableBody.children[index].replaceWith(row);
+      else tableBody.appendChild(row);
+    }
+
+    function saveData(record) {
+      let records = JSON.parse(localStorage.getItem('repairs')) || [];
+      records.push(record);
+      localStorage.setItem('repairs', JSON.stringify(records));
+    }
+
+    function updateData(record, index) {
+      let records = JSON.parse(localStorage.getItem('repairs')) || [];
+      records[index] = record;
+      localStorage.setItem('repairs', JSON.stringify(records));
+    }
+
+    function editRow(btn) {
+      const row = btn.parentElement.parentElement;
+      const index = Array.from(tableBody.children).indexOf(row);
+      let records = JSON.parse(localStorage.getItem('repairs')) || [];
+      const record = records[index];
+      if (!record) return;
+
+      document.getElementById('date').value = record.date;
+      document.getElementById('customer').value = record.customer;
+      document.getElementById('phone').value = record.phone;
+      document.getElementById('deviceType').value = record.deviceType;
+      document.getElementById('problem').value = record.problem;
+      document.getElementById('notes').value = record.notes;
+      document.getElementById('warranty').value = record.warranty;
+
+      editingIndex = index;
+      submitBtn.textContent = 'حفظ التعديلات';
+      cancelEditBtn.style.display = 'block';
+
+      searchInput.value = '';
+      updateSearchResult();
+      form.style.display = 'block';
+      form.scrollIntoView({behavior: 'smooth', block: 'start'});
+    }
+
+    function deleteRow(btn) {
+      const row = btn.parentElement.parentElement;
+      const index = Array.from(tableBody.children).indexOf(row);
+      row.remove();
+      let records = JSON.parse(localStorage.getItem('repairs')) || [];
+      records.splice(index, 1);
+      localStorage.setItem('repairs', JSON.stringify(records));
+      if (editingIndex === index) exitEditMode();
+      updateSearchResult();
+    }
+
+    function loadData() {
+      let records = JSON.parse(localStorage.getItem('repairs')) || [];
+
+      const baseClients = [
+        {date:"2025-08-06",customer:"السيد شعبان محمد",phone:"01212136419",deviceType:"شاشة",problem:"تغير ليدات",notes:"يونيون اير 32 مدفوع 800",warranty:"12",warrantyEnd:"2026-08-06"},
+        {date:"2025-08-17",customer:"سعيد حسن",phone:"01283914838",deviceType:"شاشة",problem:"تغير كارته",notes:"جاك 40بوصه مدفوع 1600جنيه",warranty:"6",warrantyEnd:"2026-02-17"},
+        {date:"2025-08-24",customer:"الحاج محمود فرغلي",phone:"01271687097",deviceType:"شاشة",problem:"ليدات",notes:"يونيون اير 50بوصه 2000",warranty:"12",warrantyEnd:"2026-08-24"},
+        {date:"2025-08-31",customer:"محمد محمود عبد النبي",phone:"01202199941",deviceType:"شاشة",problem:"ليدات",notes:"فرش 32 راجع",warranty:"12",warrantyEnd:"2026-08-31"},
+        {date:"2025-09-03",customer:"محمد قنديل",phone:"01031371999",deviceType:"شاشة",problem:"ليد 40 ايرولاين",notes:"مدفوع انستا 1200",warranty:"6",warrantyEnd:"2026-03-03"},
+        {date:"2025-09-19",customer:"طه عبد العزيز",phone:"01118148783",deviceType:"شاشة",problem:"كارت بور استعمال",notes:"32بوصه lgال سي دي",warranty:"6",warrantyEnd:"2026-03-19"},
+        {date:"2025-09-20",customer:"ام بسام",phone:"01227448349",deviceType:"شاشة",problem:"32بوصه جولدي",notes:"تغير ليدات مدفوع 800جنيه",warranty:"6",warrantyEnd:"2026-03-20"},
+        {date:"2025-09-30",customer:"احمد مجدي السيد",phone:"01281446327",deviceType:"شاشة",problem:"ليدات اصلي",notes:"43 الترا 1200جنيه مدفوع",warranty:"12",warrantyEnd:"2026-09-30"},
+        {date:"2025-10-12",customer:"محمد ماضي",phone:"01123610543",deviceType:"شاشة",problem:"كارت باوور وتم تسليم كارت قديم",notes:"تورنادو 32 كلفه 1200جنيه",warranty:"12",warrantyEnd:"2026-10-12"},
+        {date:"2025-10-13",customer:"الحاج اسامه فوفه",phone:"01286030620",deviceType:"شاشة",problem:"ليدات اصلي",notes:"Lg 42 مدفوع 850",warranty:"12",warrantyEnd:"2026-10-13"},
+        {date:"2025-10-17",customer:"مدام اماني",phone:"01098540043",deviceType:"شاشة",problem:"كارت باور",notes:"32بوصه مدفوع 800جنيه",warranty:"6",warrantyEnd:"2026-04-17"},
+        {date:"2025-10-20",customer:"ا.هناء",phone:"01226813868",deviceType:"شاشة",problem:"كارت انفرتر",notes:"يونيون اير 32 مدفوع 800",warranty:"12",warrantyEnd:"2026-10-20"}
+      ];
+
+      const existingPhones = new Set(records.map(r => r.phone));
+      baseClients.forEach(c => {
+        if (!existingPhones.has(c.phone)) {
+          records.push(c);
+          existingPhones.add(c.phone);
+        }
+      });
+
+      localStorage.setItem('repairs', JSON.stringify(records));
+      records.forEach(record => addRow(record));
+      updateSearchResult();
+    }
+
+    function updateSearchResult() {
+      const filter = searchInput.value.trim().toLowerCase();
+      const rows = Array.from(tableBody.getElementsByTagName('tr'));
+      let visible = 0;
+      rows.forEach(row => {
+        const c = row.cells[1].textContent.trim().toLowerCase();
+        const p = row.cells[2].textContent.trim().toLowerCase();
+        if (!filter || c.includes(filter) || p.includes(filter)) {
+          row.style.display = ''; visible++;
+        } else row.style.display = 'none';
+      });
+      resultCount.textContent = filter ? (visible ? `عدد النتائج: ${visible}` : 'لا توجد نتائج.') : '';
+    }
+
+    searchInput.addEventListener('input', function() {
+      form.style.display = this.value.trim() ? 'none' : 'block';
+      updateSearchResult();
+    });
+
+    // تجهيز رقم الهاتف بصيغة دولية مصرية لواتساب
+    function formatPhoneForWhatsApp(phone) {
+      let p = (phone || '').replace(/\D/g, '');
+      if (!p) return null;
+      if (p.startsWith('0')) p = '20' + p.slice(1);
+      else if (!p.startsWith('20')) p = '20' + p;
+      return p;
+    }
+
+    // إرسال تلقائي عبر واتساب: يبعت للرقم الثابت اللي كان بيبعتله، وكمان لرقم العميل اللي اتسجل
+    function sendWhatsApp(record) {
+      const msg = `🧾 *بيانات عميل جديد - سنتر يس التجاري*\n\n📅 التاريخ: ${record.date}\n👤 الاسم: ${record.customer}\n📞 التليفون: ${record.phone}\n💻 الجهاز: ${record.deviceType}\n⚙️ العطل: ${record.problem}\n📝 ملاحظات: ${record.notes || 'لا يوجد'}\n🕒 الضمان: ${record.warranty} شهر\n📆 نهاية الضمان: ${record.warrantyEnd}`;
+      const shopPhone = '201221015966';
+      const customerPhone = formatPhoneForWhatsApp(record.phone);
+
+      window.open(`https://wa.me/${shopPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+      if (customerPhone && customerPhone !== shopPhone) {
+        window.open(`https://wa.me/${customerPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+      }
+    }
+
+    function resendWhatsApp(btn) {
+      const row = btn.parentElement.parentElement;
+      const record = {
+        date: row.cells[0].textContent,
+        customer: row.cells[1].textContent,
+        phone: row.cells[2].textContent,
+        deviceType: row.cells[3].textContent,
+        problem: row.cells[4].textContent,
+        notes: row.cells[5].textContent,
+        warranty: row.cells[6].textContent.replace(' شهر', ''),
+        warrantyEnd: row.cells[7].textContent
+      };
+      sendWhatsApp(record);
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
