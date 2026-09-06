@@ -6,17 +6,70 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <style>
     * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
     body {
       font-family: 'Cairo', 'Tahoma', sans-serif;
-      background: linear-gradient(160deg, #eaf3ff 0%, #ffffff 45%, #eef6ff 100%);
-      color: #163a63;
+      background: linear-gradient(160deg, #dcebfb 0%, #f6f9fc 45%, #d9e9fb 100%);
+      background-size: 200% 200%;
+      animation: bgShift 18s ease-in-out infinite;
+      color: #12325c;
       padding: 10px;
       direction: rtl;
       -webkit-tap-highlight-color: transparent;
+      position: relative;
+      overflow-x: hidden;
     }
+    @keyframes bgShift {
+      0%   { background-position: 0% 0%; }
+      50%  { background-position: 100% 100%; }
+      100% { background-position: 0% 0%; }
+    }
+
+    .bg-blobs {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .bg-blobs span {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(40px);
+      opacity: 0.35;
+      background: radial-gradient(circle at 30% 30%, #64b5f6, #1565c0);
+    }
+    .bg-blobs span:nth-child(1) {
+      width: 220px; height: 220px; top: -60px; right: -40px;
+      animation: floatA 16s ease-in-out infinite;
+    }
+    .bg-blobs span:nth-child(2) {
+      width: 160px; height: 160px; bottom: 10%; left: -50px;
+      background: radial-gradient(circle at 30% 30%, #90caf9, #0d47a1);
+      animation: floatB 20s ease-in-out infinite;
+    }
+    .bg-blobs span:nth-child(3) {
+      width: 130px; height: 130px; bottom: -40px; right: 15%;
+      animation: floatC 14s ease-in-out infinite;
+    }
+    @keyframes floatA {
+      0%, 100% { transform: translate(0,0); }
+      50% { transform: translate(-30px, 40px); }
+    }
+    @keyframes floatB {
+      0%, 100% { transform: translate(0,0); }
+      50% { transform: translate(40px, -30px); }
+    }
+    @keyframes floatC {
+      0%, 100% { transform: translate(0,0) scale(1); }
+      50% { transform: translate(-20px, -20px) scale(1.15); }
+    }
+
     h2 {
       text-align: center;
-      background: linear-gradient(90deg, #1565c0, #2196f3);
+      background: linear-gradient(90deg, #0d47a1, #1e88e5, #0d47a1);
+      background-size: 200% auto;
+      animation: titleShine 6s linear infinite;
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -24,13 +77,22 @@
       margin-bottom: 15px;
       font-weight: 800;
     }
+    @keyframes titleShine {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
     form {
       background: #ffffff;
       padding: 15px;
       border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(21, 101, 192, 0.12);
-      border: 1px solid #dbe9fb;
+      box-shadow: 0 6px 20px rgba(13, 71, 161, 0.15);
+      border: 1px solid #cfe1f7;
       margin-bottom: 15px;
+      animation: fadeInUp 0.5s ease both;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     label {
       display: block;
@@ -42,24 +104,24 @@
     input, select, textarea {
       width: 100%;
       padding: 10px;
-      border: 1px solid #cfe0fa;
+      border: 1px solid #c3daf5;
       border-radius: 7px;
       margin-bottom: 8px;
-      background: #f4f9ff;
-      color: #163a63;
+      background: #eef5fd;
+      color: #12325c;
       font-size: 16px;
       transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
     }
     input:focus, textarea:focus, select:focus {
       background: #ffffff;
-      border-color: #2196f3;
-      box-shadow: 0 0 0 3px rgba(33,150,243,0.15);
+      border-color: #1565c0;
+      box-shadow: 0 0 0 3px rgba(21,101,192,0.18);
       outline: none;
     }
     button {
       padding: 12px 0;
       width: 100%;
-      background: linear-gradient(135deg, #2196f3, #1565c0);
+      background: linear-gradient(135deg, #1e88e5, #0d47a1);
       color: white;
       border: none;
       border-radius: 7px;
@@ -67,19 +129,20 @@
       margin-top: 8px;
       font-size: 16px;
       font-weight: 700;
-      transition: filter 0.2s, transform 0.1s;
+      transition: filter 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 3px 10px rgba(13,71,161,0.25);
     }
-    button:hover { filter: brightness(1.08); }
-    button:active { transform: scale(0.98); }
+    button:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(13,71,161,0.32); }
+    button:active { transform: scale(0.97); }
 
     #cancelEditBtn {
       display: none;
-      background: linear-gradient(135deg, #90a4ae, #607d8b);
+      background: linear-gradient(135deg, #90a4ae, #546e7a);
     }
 
-    .delete-btn { background: linear-gradient(135deg, #ef5350, #c62828); margin-top: 4px; }
-    .edit-btn { background: linear-gradient(135deg, #42a5f5, #1976d2); margin-top: 4px; }
-    .resend-btn { background: linear-gradient(135deg, #26c6da, #0097a7); margin-top: 4px; }
+    .delete-btn { background: linear-gradient(135deg, #ef5350, #b71c1c); margin-top: 4px; }
+    .edit-btn { background: linear-gradient(135deg, #1e88e5, #0d47a1); margin-top: 4px; }
+    .resend-btn { background: linear-gradient(135deg, #0288d1, #01579b); margin-top: 4px; }
 
     .action-btn {
       width: auto;
@@ -92,41 +155,50 @@
 
     #searchInput {
       width: 100%; padding: 11px; margin: 10px 0 5px;
-      border-radius: 8px; border: 1px solid #cfe0fa; background: #f4f9ff; color: #163a63;
+      border-radius: 8px; border: 1px solid #c3daf5; background: #eef5fd; color: #12325c;
       font-size: 16px;
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
     }
     #searchInput:focus {
-      background: #ffffff; border-color: #2196f3; outline: none;
-      box-shadow: 0 0 0 3px rgba(33,150,243,0.15);
+      background: #ffffff; border-color: #1565c0; outline: none;
+      box-shadow: 0 0 0 3px rgba(21,101,192,0.18);
     }
     #resultCount {
-      text-align: center; font-size: 13px; color: #5a7ca8; margin-bottom: 10px;
+      text-align: center; font-size: 13px; color: #4a6f9c; margin-bottom: 10px;
     }
     #successMessage {
       display: none; text-align: center; margin: 10px 0;
-      padding: 10px; background: linear-gradient(135deg, #42a5f5, #1e88e5); color: white;
+      padding: 12px; background: linear-gradient(135deg, #1e88e5, #0d47a1); color: white;
       border-radius: 8px; font-size: 14px; font-weight: 600;
+      animation: popIn 0.4s ease;
     }
-    #sendShopBtn {
-      display: none; width: auto; margin: 8px auto 0; padding: 8px 16px;
-      font-size: 13px; background: linear-gradient(135deg, #26c6da, #0097a7);
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1); }
     }
     .table-wrapper {
       width: 100%;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
       border-radius: 10px;
-      box-shadow: 0 4px 16px rgba(21, 101, 192, 0.10);
+      box-shadow: 0 6px 20px rgba(13, 71, 161, 0.14);
+      animation: fadeInUp 0.6s ease both;
     }
     table {
       width: 100%; min-width: 720px; margin-top: 10px; border-collapse: collapse;
       background: #ffffff; border-radius: 10px; overflow: hidden; font-size: 13px;
     }
     th, td { padding: 10px 6px; text-align: center; border-bottom: 1px solid #e3edfa; }
-    th { background: linear-gradient(135deg, #2196f3, #1565c0); color: white; font-weight: 700; }
-    tr:hover { background: #f2f8ff; }
-    tr:nth-child(even) { background: #fafcff; }
-    tr:nth-child(even):hover { background: #f2f8ff; }
+    th { background: linear-gradient(135deg, #1e88e5, #0d47a1); color: white; font-weight: 700; }
+    tr { transition: background 0.2s; }
+    tr:hover { background: #eaf3fd; }
+    tr:nth-child(even) { background: #f7fbff; }
+    tr:nth-child(even):hover { background: #eaf3fd; }
+    tr.row-enter { animation: rowIn 0.4s ease both; }
+    @keyframes rowIn {
+      from { opacity: 0; transform: translateX(-14px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
 
     @media (max-width: 600px) {
       body { padding: 6px; }
@@ -140,14 +212,11 @@
   </style>
 </head>
 <body>
+  <div class="bg-blobs"><span></span><span></span><span></span></div>
   <h2>سـنتر يس التجاري</h2>
   <input type="text" id="searchInput" placeholder="ابحث باسم العميل أو رقم الهاتف...">
   <div id="resultCount"></div>
-  <div id="successMessage">
-    ✅ هيتفتح شات العميل دلوقتي، وبعد ما ترجع هيتفتح شات المحل تلقائي
-    <br>
-    <button type="button" id="sendShopBtn">📨 لو ملتحقش، اضغط هنا لإرسال شات المحل</button>
-  </div>
+  <div id="successMessage">✅ تم إضافة السجل، هيتفتح شات واتساب المحل دلوقتي</div>
   <form id="repairForm">
     <label>تاريخ الاستلام:</label>
     <input type="date" id="date" required>
@@ -202,7 +271,6 @@
     const successMessage = document.getElementById('successMessage');
     const submitBtn = document.getElementById('submitBtn');
     const cancelEditBtn = document.getElementById('cancelEditBtn');
-    const sendShopBtn = document.getElementById('sendShopBtn');
 
     let editingIndex = null;
 
@@ -267,6 +335,7 @@
 
     function addRow(record, index = null) {
       const row = document.createElement('tr');
+      row.classList.add('row-enter');
       row.innerHTML = `
         <td>${record.date}</td>
         <td>${record.customer}</td>
@@ -393,39 +462,30 @@
       return p;
     }
 
-    // فتح شات واتساب مباشر جوه التطبيق (من غير صفحة متصفح وسيطة)
+    // فتح شات واتساب: بيستخدم نفس رابط wa.me الطبيعي في نفس التبويب
+    // عشان أندرويد/كروم يتعامل معاه زي أي رابط واتساب عادي (يسأل "تفتح في واتساب؟" من غير تبويب جديد)
     function openWhatsAppChat(phone, text) {
-      window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(text)}`;
+      const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+      const a = document.createElement('a');
+      a.href = url;
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     }
 
-    let pendingShopSend = null; // { phone, text }
+    function buildMessage(record) {
+      return `🧾 *بيانات عميل جديد - سنتر يس التجاري*\n\n📅 التاريخ: ${record.date}\n👤 الاسم: ${record.customer}\n📞 التليفون: ${record.phone}\n💻 الجهاز: ${record.deviceType}\n⚙️ العطل: ${record.problem}\n📝 ملاحظات: ${record.notes || 'لا يوجد'}\n🕒 الضمان: ${record.warranty} شهر\n📆 نهاية الضمان: ${record.warrantyEnd}`;
+    }
 
-    // بمجرد ما ترجع من تطبيق واتساب (بعد ما تبعت في الشات الأول)، يفتح الشات التاني تلقائي
-    document.addEventListener('visibilitychange', function() {
-      if (!document.hidden && pendingShopSend) {
-        const data = pendingShopSend;
-        pendingShopSend = null;
-        setTimeout(() => openWhatsAppChat(data.phone, data.text), 700);
-      }
-    });
-
-    // إرسال تلقائي: يفتح شات العميل الأول، وبمجرد الرجوع من واتساب يفتح شات المحل تاني
+    // عند الإضافة: يفتح شات الرقم الثابت بتاع المحل
     function sendWhatsApp(record) {
-      const msg = `🧾 *بيانات عميل جديد - سنتر يس التجاري*\n\n📅 التاريخ: ${record.date}\n👤 الاسم: ${record.customer}\n📞 التليفون: ${record.phone}\n💻 الجهاز: ${record.deviceType}\n⚙️ العطل: ${record.problem}\n📝 ملاحظات: ${record.notes || 'لا يوجد'}\n🕒 الضمان: ${record.warranty} شهر\n📆 نهاية الضمان: ${record.warrantyEnd}`;
-      const shopPhone = '201221015966';
-      const customerPhone = formatPhoneForWhatsApp(record.phone);
-
-      sendShopBtn.onclick = function() { openWhatsAppChat(shopPhone, msg); };
-
-      if (customerPhone) {
-        pendingShopSend = { phone: shopPhone, text: msg };
-        sendShopBtn.style.display = 'inline-block';
-        openWhatsAppChat(customerPhone, msg);
-      } else {
-        sendShopBtn.style.display = 'inline-block';
-      }
+      const msg = buildMessage(record);
+      const shopPhone = formatPhoneForWhatsApp('01279383905');
+      openWhatsAppChat(shopPhone, msg);
     }
 
+    // زرار "واتساب" في كل صف: يفتح شات رقم العميل بتاع الصف ده نفسه
     function resendWhatsApp(btn) {
       const row = btn.parentElement.parentElement;
       const record = {
@@ -438,7 +498,9 @@
         warranty: row.cells[6].textContent.replace(' شهر', ''),
         warrantyEnd: row.cells[7].textContent
       };
-      sendWhatsApp(record);
+      const msg = buildMessage(record);
+      const customerPhone = formatPhoneForWhatsApp(record.phone);
+      if (customerPhone) openWhatsAppChat(customerPhone, msg);
     }
 
     loadData();
